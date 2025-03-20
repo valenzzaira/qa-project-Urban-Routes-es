@@ -40,7 +40,7 @@ def retrieve_phone_code(driver) -> str:
 class UrbanRoutesPage:
     from_field = (By.ID, 'from')
     to_field = (By.ID, 'to')
-    call_taxi_button = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[1]/div[3]/div[1]/button')
+    call_taxi_button = (By. CSS_SELECTOR, '.button.round')
     comfort = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
     set_phone_number = (By.CLASS_NAME, 'np-text')
     phone_code = (By.ID, 'phone')
@@ -56,7 +56,7 @@ class UrbanRoutesPage:
     submit_card_xpath = (By.XPATH, '//*[text()="Agregar"]')
     button_close_xpath = (By.XPATH, '//*[@id="root"]/div/div[2]/div[2]/div[1]/button')
     input_comment = (By.CSS_SELECTOR, "#comment")
-    checkbox_bket_scrvs_xpath = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[2]/div[4]/div[2]/div[1]/div/div[2]/div/span')
+    checkbox_blanket = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[2]/div[4]/div[2]/div[1]/div/div[2]/div/span')
     checkbox_slide = (By.CLASS_NAME, "switch-input")
     ice_cream = (By.CLASS_NAME, "counter-plus")
     counter_value = (By.CLASS_NAME, 'counter-value')
@@ -236,24 +236,24 @@ class UrbanRoutesPage:
         return self.driver.find_element(*self.input_comment).get_property('value')
 
     def get_blanket_scarfs_slide(self):
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located(self.checkbox_bket_scrvs_xpath)
+        return WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located(self.checkbox_blanket)
         )
-        element = self.driver.find_element(*self.checkbox_bket_scrvs_xpath) #added the * to unpack the locator
-        self.driver.execute_script("arguments[0].scrollIntoView();", element)
-        return element  # Devuelve el elemento
-
+        
     def click_blanket_and_hndkrs(self):
-        slide = self.get_blanket_scarfs_slide()
-        slide.click()
+        WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable(self.checkbox_blanket)
+        )
+        self.get_blanket_scarfs_slide().click()
+        
 
-    def get_blancket_hndrk_info(self):
-        slider = self.driver.find_elements(*self.checkbox_slide)
-        return slider[0].get_property('checked')
+    def get_blanket_scarf_value(self):
+        return self.driver.find_element(*self.checkbox_slide).is_selected()
 
     def click_ice_cream(self):
         self.driver.implicitly_wait(20)
         self.driver.find_element(*self.ice_cream).click()
+        self.driver.implicitly_wait(20)
         self.driver.find_element(*self.ice_cream).click()
 
     def get_ice_cream_counter(self):
@@ -368,11 +368,12 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(self.driver)
         routes_page.click_blanket_and_hndkrs()
         # Verificar que el switch este activado
-        assert routes_page.get_blancket_hndrk_info() == True
+        assert routes_page.get_blanket_scarf_value() == True
 
         #7. Pedir 2 helados
     def test_add_two_ice(self):
         self.test_add_blanket_hndrsk()
+        self.driver.implicitly_wait(30)
         routes_page = UrbanRoutesPage(self.driver)
         routes_page.click_ice_cream()
         # Verificar que se hayan agregado los helados
@@ -394,11 +395,11 @@ class TestUrbanRoutes:
         routes_page = UrbanRoutesPage(self.driver)
         time.sleep(50)
         #Verificar el texto del header
-        order_info = routes_page.get_order_info()
-        if order_info is not None:
-            assert 'El conductor llegará' in order_info, f"Se esperaba 'El conductor llegará', pero se tiene: {order_info}"
-        else:
-            self.fail("La información del pedido no se encontró.")
+        order_info = routes_page.get_order_head()
+        order_info == routes_page.order_header
+
+            #Aparece el texto como un nodo y no con el formato .txt
+            #La variable del numero de minutos altera el resultado
 
 
 
