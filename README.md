@@ -61,15 +61,12 @@ Las pruebas cubren diversos escenarios de uso de "Urban Routes", incluyendo:
     pip install -r requirements.txt
     ```
 
-## Ejecución de las Pruebas
+## Ejecución de Pruebas
 
-1.  Asegúrate de tener el ChromeDriver instalado y configurado en el PATH.
-2.  Ejecuta las pruebas desde la línea de comandos:
+Para ejecutar las pruebas con `pytest`, usa el siguiente comando desde la raíz del proyecto:
 
-    ```bash
-    python -m unittest discover
-    ```
+```bash
+pytest main.py
 
-    O, si estás usando PyCharm, puedes ejecutar las pruebas directamente desde el IDE.
 
 ## Estructura del Proyecto
